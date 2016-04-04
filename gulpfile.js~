@@ -16,7 +16,7 @@ gulp.task("bundle",function()
 
 gulp.task("copy",["bundle"],function()
 {
-    return gulp.src(["app/index.html","app/style.css","app/server/server.js","app/server/snakes.R","app/server/sample.R"])
+    return gulp.src(["app/index.html","app/style.css","server/server.js","server/snakes.R","server/sample.R"])
     .pipe(gulp.dest("app/dist"));
 });
 
