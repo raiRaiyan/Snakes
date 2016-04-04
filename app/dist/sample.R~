@@ -1,0 +1,6 @@
+cat(100)
+serverSocket <-socketConnection(port = 6311,server = TRUE)
+#on.exit(close(serverSocket))
+cat("R")
+source("/home/raiyan/oldFiles/snakesReact/app/dist/snakes.R")
+cat("R started")

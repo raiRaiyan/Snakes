@@ -1,0 +1,18 @@
+{
+  "name": "snakes",
+  "description": "Online multiplayer snakes",
+  "main": "index.js",
+  "authors": [
+    "Mohamed.Raiyan"
+  ],
+  "license": "ISC",
+  "moduleType": [],
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

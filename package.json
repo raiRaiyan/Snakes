@@ -1,0 +1,26 @@
+{
+  "name": "snakes",
+  "version": "1.0.0",
+  "description": "Online multiplayer snakes",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Mohamed.Raiyan",
+  "license": "ISC",
+  "dependencies": {
+    "browserify": "^13.0.0",
+    "dispatcher": "0.0.2",
+    "es6-promise": "^3.1.2",
+    "events": "^1.1.0",
+    "flux": "^2.1.1",
+    "guid": "0.0.12",
+    "gulp": "^3.9.1",
+    "jquery": "^2.2.2",
+    "object-assign": "^4.0.1",
+    "react": "^0.14.7",
+    "react-dispatcher": "^0.2.1",
+    "react-dom": "^0.14.7",
+    "reactify": "^1.1.1"
+  }
+}
