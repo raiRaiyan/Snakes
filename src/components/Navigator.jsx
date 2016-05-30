@@ -1,4 +1,4 @@
-var React = require('react');
+var React= require('react');
 var Info = require('./PlayerInfo.jsx');
 var RightPanel = require('./RightPanel.jsx')
 

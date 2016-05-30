@@ -63,11 +63,11 @@ ConnectionStore.dispatchId = dispatcher.register(function(payload){
             });
             break;
         case 'startGame':
-            dispatcher.waitFor([Info.dispatchId]);
-            if(InfoStore.nameValid())
-            {
+            // dispatcher.waitFor([Info.dispatchId]);
+            // if(InfoStore.nameValid())
+            // {
                 
-            }
+            // }
             _playerName = payload.data;
             SnakeService.startSSE(_playerName,_playerColor);
             _nameInput = false;

@@ -6,6 +6,9 @@ var http = require('http'),
     cp = require('child_process')
     net = require('net');
 
+ var distPath = "./dist";
+ var rPath = "./server";
+
  var r,gResponse,rServer,t,stop = true,sseResponse = [];
  var ids =  [],players = [];
  
@@ -34,8 +37,14 @@ var getData = function(request,id,callback)
 var staticFiles = function(request,response)
 {
 	var uri = url.parse(request.url).pathname
-    	, filename = path.join(process.cwd(), uri);
+    	, filename = path.join(process.cwd(), distPath,uri);
+
+    console.log(filename);
   
+	if (uri === "/" && fs.statSync(filename).isDirectory()) filename += "index.html";
+	
+	console.log(filename);
+
 	fs.exists(filename, function(exists) {
 		if(!exists) {
 		  response.writeHead(404, {"Content-Type": "text/plain"});
@@ -44,7 +53,6 @@ var staticFiles = function(request,response)
 		  return;
 		}
 
-		if (uri === "/" && fs.statSync(filename).isDirectory()) filename += "index.html";
 
 		fs.readFile(filename, "binary", function(err, file) {
 		  if(err) {        
@@ -73,7 +81,7 @@ var handleROutput = function(data)
 	console.log("R data received: "+ op);
 	if(op.search('>') != -1)
 	{
-		r.stdin.write("source(\"" + process.cwd().replace(/\\/g,'/') + "/sample.R\")\n");
+		r.stdin.write("source(\"" +path.join(process.cwd(), rPath, "./sample.R") +"\")\n");
 	}
 	else if(op.search("started") != -1)
 	{

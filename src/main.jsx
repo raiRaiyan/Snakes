@@ -1,11 +1,10 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
-var Navigator = require('./components/Navigator.jsx');
-                
+var Navigator = require('./components/Navigator');
 var menuOptions = ["Home","Score","About"];
 
-function render(){
+var r = function(){
     ReactDOM.render(<Navigator items={menuOptions} />, document.getElementById("container"));  
 }           
  
-render();
+r();
