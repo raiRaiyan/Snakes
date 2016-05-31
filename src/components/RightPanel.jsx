@@ -38,7 +38,7 @@ module.exports = React.createClass({
     },
     
     handleKeyPress: function(event){
-        if(!this.state.nameInput)
+        if(!this.state.nameInput && !this.state.arenaNotVisible)
         {
             event.preventDefault();
             SnakeActions.handleKeyPress(event.keyCode);
