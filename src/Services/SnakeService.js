@@ -50,19 +50,18 @@ module.exports = {
         
         socket.on('newPlayer',
             function(msg){
-                console.log("new player",msg);
                 InfoActions.newPlayer(JSON.parse(msg))
             });
 
         socket.on('scoreUpdate',
             function(msg){
-                console.log("scoreUpdate",msg);
+                //console.log("scoreUpdate",msg);
                 InfoActions.scoreUpdate(JSON.parse(msg));
             });
 
         socket.on('message',
             function(msg){
-                console.log("recieved",msg);
+                //console.log("recieved",msg);
                 SnakeActions.moveSnake(JSON.parse(msg))
             });
     }

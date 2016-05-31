@@ -21,6 +21,7 @@ module.exports = React.createClass({
     
     render: function(){
         var state = this.state;
+        //console.log("Colors",state.colors,"\nSnakes",state.snakes);
         return(
             <svg width="450" height="450">
 		        {

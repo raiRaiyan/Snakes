@@ -103,7 +103,7 @@ var handleROutput = function(data)
 				//console.log("Snake Data received: ", data.toString());
 				// /console.log((new Date()).getMilliseconds());
 				data = data.toString();
-				console.log("data",data);
+				//console.log("data",data);
 				socketio.emit("message",data);
 			});
 			rServer.on('error',function(err){
@@ -116,9 +116,10 @@ var handleROutput = function(data)
 	}
 	else
 	{
+		console.log("####120",op);
 		if(op.search("\\[")!=-1)
 		{
-			console.log(op)
+			//console.log(op);
 			var scores = JSON.parse(op);
 			scores.pop();
 			for(var j=0;j<players.length;j++){
@@ -137,6 +138,8 @@ var handleROutput = function(data)
             players.splice(delIndex,1);
             ids.splice(delIndex,1);
             console.log(ids);
+
+            socketio.emit("newPlayer",JSON.stringify(players));
             if(socketAr.length === 0 )
             {
                 stop = true;
@@ -147,9 +150,18 @@ var handleROutput = function(data)
 	}
 }
 
+var push = function(arr,value) {
+	arr.push(value);
+	arr.sort(function(a, b) {
+	    var textA = a.name;
+	    var textB = b.name;
+	    return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+	});
+}
+
 var handleRequest = function(request,response)
 {
-	console.log("\nReceived request");
+	//console.log("\nReceived request");
 	// console.log(request.method+"\n"+request.url+"\n"+request.headers['user-agent']);
 	gResponse = response;
 	var id = url.parse(request.url);
@@ -222,29 +234,33 @@ console.log("Listening on localhost:8081");
 socketio = new socketio().listen(server);
 
 socketio.on("connection", function (socket) {
-	socketAr.push(socket);
 	socket.on("startGame",function (obj) {
 		obj = JSON.parse(obj);
+		socket.name = obj.id;
 		if(stop){
+			push(socketAr,socket);
 			ids.push(obj.id);
+			ids.sort();
 			stop = false;
 			console.log("Starting Game",obj);
 			if(typeof(r)!='undefined'){
 			    r.stdin.write("playSnake(\""+obj.id+"\")\n");
 			    var newPlayer = playerData(obj.id,obj.color,0);
-				players.push(newPlayer);
+				push(players,newPlayer);
 			    console.log(players)
 			    socket.emit("newPlayer",JSON.stringify(players));
             }
             else
                 stop = true;
 		} else if(ids.indexOf(obj.id) === -1) {
+			push(socketAr,socket);
 			ids.push(obj.id);
+			ids.sort();
 			console.log("Sending new snake request");
 			clearTimeout(t);
 			rServer.write(obj.id+",new");
 			var newPlayer = playerData(obj.id,obj.color,0);
-			players.push(newPlayer);
+			push(players,newPlayer);
 			socketio.emit("newPlayer",JSON.stringify(players))
 		}
 	});

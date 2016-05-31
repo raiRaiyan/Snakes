@@ -14,7 +14,7 @@ playSnake <- function(id,arenaSize = 45L) {
   .GlobalEnv$prevkey <- new.env()
   .GlobalEnv$capturedFood <- new.env()
   playerIds <- c(id)
-  
+
   #The third attribute represents the direction of the next move of
   #that point
   #1 - L, 2 - R, 3 - U, 4 - D
@@ -31,6 +31,7 @@ playSnake <- function(id,arenaSize = 45L) {
       
       if(gameOver(.GlobalEnv$snakes[[id]]))
       {
+        #IMPORTANT
         cat(paste0(id,",Your score: ",length(.GlobalEnv$snakes[[id]]),"\n"))
         rm(list = id,envir = .GlobalEnv$snakes)
         rm(list = id,envir = .GlobalEnv$capturedFood)
@@ -56,11 +57,13 @@ playSnake <- function(id,arenaSize = 45L) {
       if(captor(food)){
         # cat("newFood")
         food <<- sample(ARENA_SIZE,2)
+
         o = "["
-        sapply(playerIds,function(m){
+        sapply(sort(playerIds),function(m){
             o <<- paste0(o,length(.GlobalEnv$snakes[[m]])+length(.GlobalEnv$capturedFood[[m]]),",")
           })
         o = paste0(o,"0]")
+        #IMPORTANT
         cat(o)
         # while(any(sapply(.GlobalEnv$snakes[[win]],"%in%",food))){
         #   food <- sample(ARENA_SIZE,2)
@@ -105,8 +108,10 @@ playSnake <- function(id,arenaSize = 45L) {
       .GlobalEnv$capturedFood[[id]] <- NULL
       crossed[id] <<- FALSE
       playerIds <<- c(playerIds,id)
+
     }
     else if(key == '27'){
+      #IMPORTANT
       cat(paste0(id,",Your score: ",length(.GlobalEnv$snakes[[id]]),"\n"))
       rm(list = id,envir = .GlobalEnv$snakes)
       rm(list = id,envir = .GlobalEnv$capturedFood)

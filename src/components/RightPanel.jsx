@@ -29,7 +29,7 @@ module.exports = React.createClass({
     },
     
     handleChange:function(e){
-      this.setState({name: e.target.value});
+      this.setState({name: e.target.value.toLowerCase()});
     },
 
     handleColorChange:function(e){
