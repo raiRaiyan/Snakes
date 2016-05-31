@@ -1,5 +1,7 @@
 var $ = require("jquery");
 var Promise = require("es6-promise").Promise;
+var io = require('socket.io-client');
+
 var SnakeActions = require('../actions/SnakeActions.js');
 var InfoActions = require('../actions/InfoActions.js');
 
@@ -34,40 +36,34 @@ module.exports = {
     
     startSSE: function (name,color) {
         console.log(color);
-        var s = new EventSource("/startGame?"+name+"$"+color.substr(1));
-        s.addEventListener('gameOver',function(msg){
+        var socket = io(location.protocol+"//"+location.hostname+":8081");
+        socket.emit("startGame",JSON.stringify({id:name,color}));
+        socket.on('gameOver',function(msg){
             // console.log(msg.data);
             // $scope.key  = msg.data;
             // $scope.arena = false;
             // $scope.btnText = "Play again";
             // $scope.nameInput = true;
             // $scope.myName = id;
-            s.close();	
-        },false);
+            socket.close();	
+        });
         
-        s.addEventListener('newPlayer',
+        socket.on('newPlayer',
             function(msg){
-                console.log(msg);
-                InfoActions.newPlayer(JSON.parse(msg.data))
-            },false);
+                console.log("new player",msg);
+                InfoActions.newPlayer(JSON.parse(msg))
+            });
 
-        s.addEventListener('scoreUpdate',
+        socket.on('scoreUpdate',
             function(msg){
-                console.log(msg);
-                InfoActions.scoreUpdate(JSON.parse(msg.data));
-            },false);
+                console.log("scoreUpdate",msg);
+                InfoActions.scoreUpdate(JSON.parse(msg));
+            });
 
-        s.addEventListener('message',
+        socket.on('message',
             function(msg){
-                SnakeActions.moveSnake(JSON.parse(msg.data))
-            },
-            false);
-        
-        s.onerror = function(err)
-        {
-           // ConnectionActions.error(err);
-            s.close();
-            console.log("Disconnected");
-        };
+                console.log("recieved",msg);
+                SnakeActions.moveSnake(JSON.parse(msg))
+            });
     }
 }

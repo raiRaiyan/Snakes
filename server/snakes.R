@@ -1,4 +1,4 @@
-library(bareSnakes)
+library(bareSnakes, lib.loc=paste0(getwd(),"/server/"))
 
 snakes <- NULL
 prevkey <- NULL
@@ -73,8 +73,8 @@ playSnake <- function(id,arenaSize = 45L) {
       # cat(paste(crossed))
      
     # }
-    write.socket(serverSocket,paste0("data:{\"s\":",snakeData(FALSE),",",
-                                     paste0("\"f\":[",food[1], ",",food[2],"]}\n\n")))
+    write.socket(serverSocket,paste0("{\"s\":",snakeData(FALSE),",",
+                                     paste0("\"f\":[",food[1], ",",food[2],"]}")))
     return(2)
   }
   

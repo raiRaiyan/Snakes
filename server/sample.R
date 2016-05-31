@@ -1,5 +1,5 @@
 cat(100)
 serverSocket <-make.socket(port = 6311,server = TRUE)
 #on.exit(close(serverSocket))
-source("/home/raiyan/oldFiles/snakesReact/server/snakes.R")
+source(paste0(getwd(),"/server/snakes.R"))
 cat("R started")

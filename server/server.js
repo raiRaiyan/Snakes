@@ -5,12 +5,13 @@ var http = require('http'),
     fs = require("fs"),
     cp = require('child_process')
     net = require('net');
+    socketio = require('socket.io');
 
  var distPath = "./dist";
  var rPath = "./server";
 
- var r,gResponse,rServer,t,stop = true,sseResponse = [];
- var ids =  [],players = [];
+ var r,gResponse,rServer,t,stop = true;
+ var ids =  [],players = [], socketAr = [];
  
  var playerData = function(n,c,s){
  	return {
@@ -71,14 +72,14 @@ var staticFiles = function(request,response)
 
 var moveSnake = function(data)
 {
-	console.log("Writing to R" + data);
+	//console.log("Writing to R" + data);
 	rServer.write(data);
 }
 
 var handleROutput = function(data)
 {
 	var op = data.toString();
-	console.log("R data received: "+ op);
+	//console.log("R data received: "+ op);
 	if(op.search('>') != -1)
 	{
 		r.stdin.write("source(\"" +path.join(process.cwd(), rPath, "./sample.R") +"\")\n");
@@ -102,10 +103,8 @@ var handleROutput = function(data)
 				//console.log("Snake Data received: ", data.toString());
 				// /console.log((new Date()).getMilliseconds());
 				data = data.toString();
-				for(var i=0;i<sseResponse.length;i++)
-				{
-					sseResponse[i].write(data);
-				}		
+				console.log("data",data);
+				socketio.emit("message",data);
 			});
 			rServer.on('error',function(err){
 				console.log(err)
@@ -124,28 +123,27 @@ var handleROutput = function(data)
 			scores.pop();
 			for(var j=0;j<players.length;j++){
 				players[j].score = scores[j];
-				sseResponse[j].write('event: scoreUpdate\ndata: '+JSON.stringify(scores)+'\n\n');
 			}
+			socketio.emit("scoreUpdate",JSON.stringify(scores));
 		}
 		else if(op.search('score')!=-1)
         {
             var d = op.split(",");
             var delIndex = ids.indexOf(d[0]);
 		    //sseResponse.writeHead(200,{"Content-type" : "text/plain"});
-            sseResponse[delIndex].write('event: gameOver\ndata: ' + d[1] + '\n\n');
+            socketAr[delIndex].emit('gameOver',d[1]);
             console.log(ids);
-            sseResponse.splice(delIndex,1);
+            socketAr.splice(delIndex,1);
             players.splice(delIndex,1);
             ids.splice(delIndex,1);
             console.log(ids);
-            if(sseResponse.length === 0 )
+            if(socketAr.length === 0 )
             {
                 stop = true;
                 clearTimeout(t);
                 console.log("Stopped");
             }
         }
-			
 	}
 }
 
@@ -213,65 +211,44 @@ var handleRequest = function(request,response)
 	} 
 	else if(request.method === 'GET')
 	{
-		if(id.pathname === '/startGame')
-		{
-			info = id.query.split('$');
-			if(stop){
-				stop = false;
-				ids.push(info[0]);
-				sseResponse.push(response);
-				console.log("Starting Game");
-				response.on("close",function()
-				{
-					clearTimeout(t);
-				});
-				response.writeHead(200, {
-				        'Content-Type': 'text/event-stream',
-				        'Cache-Control': 'no-cache',
-				        'Connection': 'keep-alive'
-			    });
-                if(typeof(r)!='undefined'){
-				    r.stdin.write("playSnake(\""+info[0]+"\")\n");
-				    var newPlayer = playerData(info[0],'#'+info[1],0);
-					players.push(newPlayer);
-				    response.write('event:newPlayer\ndata:'+JSON.stringify(players) + '\n\n');
-                }
-                else
-                    stop = true;
-			}
-			else if(ids.indexOf(info[0]) === -1)
-			{
-				ids.push(info[0]);
-				sseResponse.push(response);
-				response.on("close",function()
-				{
-                    //remove the corresponding snake from the environment
-					clearTimeout(t);
-                    // sseResponse[response]
-				});
-				response.writeHead(200, {
-				        'Content-Type': 'text/event-stream',
-				        'Cache-Control': 'no-cache',
-				        'Connection': 'keep-alive'
-			    });
-				console.log("Sending new snake request");
-				clearTimeout(t);
-				rServer.write(info[0]+",new");
-				var newPlayer = playerData(info[0],'#'+info[1],0);
-				players.push(newPlayer);
-				for(var i=0;i<sseResponse.length;i++)
-				{
-					sseResponse[i].write('event:newPlayer\ndata:'+JSON.stringify(players) + '\n\n');
-				}	
-			}
-		}
-		else
-		{
-			staticFiles(request,response);
-		}
+		staticFiles(request,response);
 	}
 }
 
 server.on('request',handleRequest);
 server.listen(8081);
 console.log("Listening on localhost:8081");
+
+socketio = new socketio().listen(server);
+
+socketio.on("connection", function (socket) {
+	socketAr.push(socket);
+	socket.on("startGame",function (obj) {
+		obj = JSON.parse(obj);
+		if(stop){
+			ids.push(obj.id);
+			stop = false;
+			console.log("Starting Game",obj);
+			if(typeof(r)!='undefined'){
+			    r.stdin.write("playSnake(\""+obj.id+"\")\n");
+			    var newPlayer = playerData(obj.id,obj.color,0);
+				players.push(newPlayer);
+			    console.log(players)
+			    socket.emit("newPlayer",JSON.stringify(players));
+            }
+            else
+                stop = true;
+		} else if(ids.indexOf(obj.id) === -1) {
+			ids.push(obj.id);
+			console.log("Sending new snake request");
+			clearTimeout(t);
+			rServer.write(obj.id+",new");
+			var newPlayer = playerData(obj.id,obj.color,0);
+			players.push(newPlayer);
+			socketio.emit("newPlayer",JSON.stringify(players))
+		}
+	});
+	socket.on("disconnect",function () {
+		clearTimeout(t);
+	});
+})
