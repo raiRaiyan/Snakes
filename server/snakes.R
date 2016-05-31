@@ -1,4 +1,4 @@
-library(bareSnakes, lib.loc=paste0(getwd(),"/server/"))
+library(bareSnakes)
 
 snakes <- NULL
 prevkey <- NULL
