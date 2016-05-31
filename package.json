@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "node build.js && node ./server/server.js",
-    "serve": "node ./server/server.js"
+    "serve": "node ./server/server.js",
+    "start": "cross-env NODE_ENV=development node build.js"
   },
   "author": "Mohamed.Raiyan",
   "license": "ISC",
