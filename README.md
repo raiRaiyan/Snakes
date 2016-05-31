@@ -18,3 +18,5 @@
 **Open the browser and navigate to `localhost:8081`**
 
 Enjoy!!
+
+> *Note:* For windows, you should have R set in the environment variables
